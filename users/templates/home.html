@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %} 
+
+
+<!--Home--> 
+ <div class="card col-sm-12">
+ <div class="card-body"> 
+ {% if user.is_authenticated %}
+    <p>Welcome, {{ user.get_username }}</p>
+    <input type="button"  class=" btn btn-outline-success" onclick='location.href = "{% url 'logout'%}";' value="LogOut">  </input>
+    <input type="button"  class=" btn btn-outline-success" onclick='location.href = "{% url 'signup'%}";' value="Create Account">  </input>
+
+{% else %}
+    <p>Please log in.</p>
+ <input type="button"  class=" btn btn-outline-success" onclick='location.href = "{% url 'login'%}";' value="Login">  </input>
+ <input type="button"  class=" btn btn-outline-success" onclick='location.href = "{% url 'signup'%}";' value="Create Account">  </input>
+
+{% endif %}
+</div>
+</div>
+<br>
+<p>All Users.</p>
+  {% for user in users %}
+  
+  <br>
+ <div class="card  container card-body  py-5 px-5"  style="width: 18rem; padding=100px; margin=50px;">
+   
+     {% if user.profile is not None and user.profile != '' %}
+      
+     <img src="{{user.profile}}" alt="Didnt Find" width="150px" height="150px">
+    <br>
+     {% endif %} 
+
+       {{user.username}} <br> 
+       {{user.email}} <br> 
+       {{user.password}} <br>
+
+
+       
+       <input type="button"  class="btn btn-outline-danger  "  onclick='location.href="/delete/{{user.id}}";' value="Delete"></input>
+       <input type="button"  class="btn btn-outline-info"  onclick='location.href="/user_detail/{{user.id}}";' value="Profile"></input>
+     
+</div>
+
+ {% endfor %}
+
+{% endblock %}

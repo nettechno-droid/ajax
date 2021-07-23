@@ -1,0 +1,30 @@
+<script>
+
+    $("#btnSave").click(function () {
+        console.log("Clicked save it");
+        let em = $("#email").val();
+        let nm = $("#username").val();
+        let pwd = $("#password").val();
+        console.log(nm);
+        console.log(em);
+        console.log(pwd);
+        let csr = $("input [name='csrfmiddlewaretoken']").val();
+        console.log("After values");
+        
+            mydata = {
+                email: em,
+                username: nm,
+                password: pwd,
+                csrfmiddlewaretoken:csr
+            };
+            console.log(mydata);
+            $.ajax({
+                url: "{% url 'update' %}",
+                method: "POST",
+                data: mydata,
+                success: function (data) {
+                    console.log(data);
+                },
+            });
+    });
+</script>

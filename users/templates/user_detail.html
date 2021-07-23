@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %} 
+
+
+<!--Home--> 
+
+
+<div class="container py-5">
+    {% csrf_token %}
+    <p>User Detail</p>
+  
+     {% if user.profile is not None and user.profile != '' %}
+     
+     <img src="{{user.profile.url}}" alt="Didnt Find" width="150px" height="150px"><br>
+     {% endif %} 
+     
+       <a >{{user.username}}</a> <br> 
+       {{user.email}} <br> 
+       {{user.password}} <br>
+       <input type="button"  class=" btn btn-outline-success" onclick='location.href = "/update/";' value="Edit">  </input>
+       <input type="button"  class="btn btn-outline-info" onclick='location.href = "/update/{{user.id}}";' value="Change Password">  </input>
+       <input type="button"  class="btn btn-outline-warning" onclick='location.href="/delete/{{user.id}}";' value="Delete"></input>
+   <hr>
+  
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{%block javascript%}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" 
+    integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+     crossorigin="anonymous"></script>
+
+     <script>
+     $('#btnSave').submit(function(e){
+        e.preventDefault();
+		console.log("Clicked save it");
+        let em = $("#email").val();
+        let nm = $("#username").val();
+        let pwd = $("#password").val();
+        console.log(nm);
+        console.log(em);
+        console.log(pwd);
+		$form = $(this);
+         var formData = new FormData(this);
+		 mydata = {
+                email: em,
+                username: nm,
+                password: pwd,
+                csrfmiddlewaretoken:csr
+            };
+            console.log(mydata);
+         $.ajax({
+             url:window.location.pathname,
+             type:'POST',
+             data:mydata,
+             cache: false,
+             contentType: false,
+             processData: false,
+             success:function(response){
+                 $('.error').remove();
+                 console.log(response);
+                 if(response.error){
+                     $.each(response.errors,function(name,error){
+                         error = '< small class ="text-muted errors">' + error + '</small>'
+                         $form.find('[name=' + name + ']').after(error);
+                     });
+                 }
+                 else{
+                     //if u want popup msg after subbmission
+                     alert(response.message)
+                     window.location = " ";
+                 }
+             },
+         });
+     }); 
+     </script>  
+
+{% endblock %}
+
+{% block content %}
+
+
+<!--Update-->
+<div class="container py-5">
+	<h1>Update</h1>
+	<form method="POST" action="" enctype="multipart/form-data" id="update-form">
+		{% csrf_token %}
+		<div class="mb-3">
+			<label  class="form-label">Email address</label>
+			<input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" value="{{user.email}}">
+		</div>
+		<div class="mb-3">
+			<label  class="form-label">UserName</label>
+			<input type="text" class="form-control" id="username"  name="username" value="{{user.username}}">
+		</div>
+		
+		<div class="mb-3">
+			<label  class="form-label">Password</label>
+			<input type="password" class="form-control" id="password" placeholder="password" name="password">
+		</div>
+		 <div class="mb-3">
+		 {% if user.profile is not None and user.profile != '' %}
+     <img src="{{user.profile.url}}" alt="Didnt Find" width="150px" height="150px"><br>
+     {% endif %}<br>
+        <input type="file" name="profile" id="profile"  value=""><br><br>
+       </div>
+		<button class="btn btn-primary" type="submit" id="btnSave">Submit</button>
+	</form>
+	<p class="text-center">If you want to delete account, <a href="{% url 'login' %}">Delete</a></p>
+</div>
+
+{% comment %} <script>
+
+    $("#btnSave").click(function () {
+        console.log("Clicked save it");
+        let em = $("#email").val();
+        let nm = $("#username").val();
+        let pwd = $("#password").val();
+        console.log(nm);
+        console.log(em);
+        console.log(pwd);
+        let csr = $("input [name='csrfmiddlewaretoken']").val();
+        console.log("After values");
+        
+            mydata = {
+                email: em,
+                username: nm,
+                password: pwd,
+                csrfmiddlewaretoken:csr
+            };
+            console.log(mydata);
+            $.ajax({
+                url: "{% url 'update' %}",
+                method: "POST",
+                data: mydata,
+                success: function (data) {
+                    console.log(data);
+                },
+            });
+    });
+</script> {% endcomment %}
+
+{% endblock %}

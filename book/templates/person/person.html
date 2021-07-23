@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+
+<!--Register-->
+<div class="row card-body ">
+<div class="container py-5 col-6">
+	<h1>Person</h1>
+	
+	<form method='post'  id="person_form" enctype="multipart/form-data">
+		
+		{% csrf_token %}
+
+        <div class="mb-3">
+        <input type="file" name="image" id="image"  ><br><br>
+       </div>
+		
+        <div class="mb-3">
+			<label  class="form-label">Name</label>
+			<input type="text" class="form-control" id="name"  name="name">
+		</div>
+
+         <div class="mb-3">
+			<label  class="form-label">Phone</label>
+			<input type="text" class="form-control" id="phone"  name="phone">
+		</div>
+
+		<button class="btn btn-primary" id="btnSave" type="submit">Save Data</button>
+	</form>
+</div>
+
+ 
+ <div class="container py-5  card-body col-6">
+   <table style="width:100%" id="person_table">
+   <thead>
+      <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Phone</th>
+      </tr>
+      </thead>
+
+<h1> Updating this  </h1>
+      <tbody id="tbody">
+      {% for person  in persons %}
+
+	     <div class="card" id="personDiv" >
+         <tr id ="personrow_{{ person.id }}" class="record">
+         {% if person.image is not None and person.image != '' %}
+           <td id="tdImage"><img src="{{person.image.url}}" width="150px" height="100px"></td>
+        {% endif %}
+		<td id="tdName"  >{{person.name}}</td>
+		<td id="tdPhone" >{{person.phone}}</td>    
+        <td id="tdDelete"><a href="/person/person-view/{{person.id}}/" value="{{person.id}}" id="deleteperson" class="person-delete text-danger" > Delete </a> </td>  
+        </tr>
+        </div>
+        {% endfor %}
+       </tbody>
+        </table>
+</div>
+
+</div>
+
+	 <script>
+     $('#person_form').submit(function(e){
+         e.preventDefault();
+         
+         
+         {% comment %} 
+         var formData = new FormData();
+         formData.append('image',$("#image")[0].files[0]);
+         formData.append('name',$("#name").val());
+         formData.append('phone',$("#phone").val());
+         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+          {% endcomment %}
+
+         
+         var formData = new FormData(this);
+         $.ajax({
+             url:"/person/person-view/",
+             type:'POST',
+             data:formData,
+             cache: false,
+             processData: false,
+             contentType: false,
+             enctype: 'multipart/form-data',
+             success:function(response){
+                alert('The identity has been created!');
+                
+                var instance = JSON.parse(response["instance"]);
+                var fields = instance[0]["fields"];
+                
+                $("#person_table tbody").append
+                 (
+                     `<tr>
+                     <td><img src="{{ scheme }}://{{ get_host }}/${fields["image"]||""}" width="150px" height="150px"></td>
+                     <td>${fields["name"]||""} </td>                     
+                     <td>${fields["phone"]||""}</td>
+                     <td id="tdDelete"><a href="/person/person-view/{{person.id}}/" value="{{person.id}}" id="deleteperson" class="person-delete text-danger" > Delete </a> </td>  
+                    </tr>`
+                 );
+
+
+
+
+                $("#person_form").trigger('reset');
+                $("#name").focus();
+                
+               },
+             error: function(xhr, errmsg, err) {
+                  console.log(xhr.status + ":" + xhr.responseText)
+              }
+
+         });
+     });
+
+     $("#deleteperson").on("click",function(e){
+                      e.preventDefault();
+                      var id = $(this).attr('value');
+                      $.ajax({
+                           url:"/person/person-view/"+id+"/",
+                           type:"GET",
+                           dataType:"json",
+                           success:function(response){
+                               alert("deleted");
+
+                          },
+             error: function(xhr, errmsg, err) {
+                  console.log(xhr.status + ":" + xhr.responseText)
+              }
+
+                      });
+     });
+
+	 </script> 
+
+	   
+
+{% endblock %}

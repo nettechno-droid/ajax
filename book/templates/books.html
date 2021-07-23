@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+
+<!--Register-->
+<div class="row card-body ">
+<div class="container py-5 col-6">
+	<h1>Books</h1>
+	
+	<form method='post'  id="book_upload" enctype="multipart/form-data">
+		
+		{% csrf_token %}
+
+
+		
+        <div class="mb-3">
+			<label  class="form-label">Book Name</label>
+			<input type="text" class="form-control" id="name"  name="name">
+		</div>
+
+         <div class="mb-3">
+			<label  class="form-label">Author</label>
+			<input type="text" class="form-control" id="author"  name="author">
+		</div>
+
+         <div class="mb-3">
+			<label  class="form-label">Genre</label>
+			<input type="text" class="form-control" id="genre"  name="genre">
+		</div>
+
+         <div class="mb-3">
+			<label  class="form-label">Price</label>
+			<input type="text" class="form-control" id="price"  name="price">
+		</div>
+        <div class="mb-3">
+        <input type="file" name="image" id="image" value= ><br><br>
+       </div>
+
+		<button class="btn btn-primary" id="btnSave" type="submit">Book Uploaded</button>
+	</form>
+</div>
+
+ 
+ <div class="container py-5  card-body col-6">
+   <table style="width:100%" id="book_table">
+   <thead>
+      <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Price</th>
+      </tr>
+      </thead>
+<h1> Updating this  </h1>
+      <tbody id="tbody">
+      {% for book  in books %}
+
+	     <div class="card" >
+         <tr id ="bookrow_{{ book.id }}" class="record">
+         {% if book.image is not None and book.image != '' %}
+           <td><img src="{{book.image.url}}" width="150px" height="150px"></td>
+        {% endif %}
+		<td>{{book.name}}</td>
+		<td>{{book.price}}</td>    
+        <td ><a href="/book/books/{{book.id}}/" value="{{book.id}}" class="book-delete text-danger" > Delete </a> </td>  
+        </tr>
+        </div>
+        {% endfor %}
+       </tbody>
+        </table>
+</div>
+
+</div>
+     
+	 
+	 <script>
+     
+     $('#book_upload').submit(function(e){
+         e.preventDefault();
+         output="";
+         $form = $(this);
+         var formData = new FormData(this);
+         var serializedData = $(this).serialize();
+         $.ajax({
+             url:{% url 'book:book' %},
+             type:'POST',
+             data:formData,
+             cache: false,
+             contentType: false,
+             processData: false,
+             
+             success:function(response){
+				 console.log("Under success")
+                 console.log(response); 
+                // on successfull creating object
+                // 1. clear the form.
+                $("#book_upload").trigger('reset');
+                // 2. focus to nickname input 
+                $("#name").focus();
+                // display the newly friend to table.
+                var instance = JSON.parse(response["instance"]);
+                var fields = instance[0]["fields"];
+                 $("#book_table tbody").append
+                 (
+                     `<tr>
+                     <td><img src="{{ scheme }}://{{ get_host }}/${fields["image"]||""}" width="150px" height="150px"></td>
+                     <td>${fields["name"]||""} </td>                     
+                     <td>${fields["price"]||""}</td>
+                     <td ><a href="/book/books/{{book.id}}" value="{{book.id}}" class="book-delete text-danger" > Delete </a> </td>  
+                     </tr>`
+                 )
+             },
+              error: function (response) {
+            // alert the error if any error occured
+                alert(response["responseJSON"]["error"]);
+            
+            }
+
+             
+         });
+     });
+ 
+     
+    $(".book-delete").on("click",function(e){
+           e.preventDefault();
+           var id = $(this).attr('value');
+           $.ajax({
+                   url :"/book/books/"+id+"/",
+                   type:"GET",
+                   dataType:"json",
+                   success:function(resp){
+                       $('#bookrow_'+String(id)).remove();
+                   },
+               });
+    });
+
+     
+  
+	 </script> 
+
+	   
+
+{% endblock %}
